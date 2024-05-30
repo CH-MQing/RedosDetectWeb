@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ReDosDetect首页</title>
+    <style>
+        body {
+            background-color: #f2f2f2; /* 浅灰色背景 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            position: relative;
+            background-color: #fff; /* 白色背景 */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .separator {
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #444; /* 深灰色分割线 */
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        button[type="submit"] {
+            background-color: dodgerblue; /* 蓝色背景 */
+            color: white; /* 白色文字 */
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        /*加载*/
+        .loading-tip {
+            z-index: 1002;
+            position: fixed;
+            display:none;
+            box-shadow: #444444;
+            border-radius: 20px;
+        }
+        .loading-tip img {
+            width:200px;
+            height:200px;
+            border-radius: 20px;
+        }
+        /*    */
+        .overlay {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            z-index: 1001;
+            display:none;
+            filter:alpha(opacity=60);
+            background-color: #777;
+            opacity: 0.5;
+            -moz-opacity: 0.5;
+        }
+    </style>
+
+</head>
+<body>
+<div class="container" aria-rowspan="11200px">
+    <h1>ReDoSDetect</h1>
+    <label for="isFile">是否批量检测:</label>
+    <input type="checkbox" id="isFile" name="isFile" onchange="toggleFileInput()"><br><br>
+    <form method="POST" action="http://127.0.0.1:9090/upload" enctype="multipart/form-data" id="DataForm" >
+        <div id="dataInput">
+            <label for="data">正则表达式:</label><br>
+            <textarea id="data" name="data" rows="10" cols="50" resize="none"></textarea><br><br>
+        </div>
+
+        <label for="model">请选择测试模式:</label>
+        <select  id="model" name="model" required>
+<!--            <option selected="selected" >&#45;&#45;请选择测试模式&#45;&#45;</option>-->
+            <option value="s">快速模式</option>
+            <option value="m">标准模式</option>
+        </select><br><br>
+
+        <label for="language">请选择测试语言:</label>
+        <select id="language" name="language">
+<!--            <option selected="selected">&#45;&#45;请选择测试语言&#45;&#45;</option>-->
+            <option value="java">Java</option>
+            <option value="js">JavaScript</option>
+        </select><br><br>
+        <button type="submit" class="submitbtn">提交</button>
+    </form>
+    <form method="POST" action="http://127.0.0.1:9090/uploadFlie" enctype="multipart/form-data" class="hidden" id="FileForm">
+        <div id="fileInput">
+            <label for="file">需检测的txt文件:</label>
+            <input type="file" id="file" name="file">
+        </div>
+        <label for="Checkmodel">请选择测试模式:</label>
+        <select  id="Checkmodel" name="checkmodel" required>
+            <!--            <option selected="selected" >&#45;&#45;请选择测试模式&#45;&#45;</option>-->
+            <option value="s">快速模式</option>
+            <option value="m">标准模式</option>
+        </select><br><br>
+
+        <label for="Checklanguage">请选择测试语言:</label>
+        <select id="Checklanguage" name="language">
+            <!--            <option selected="selected">&#45;&#45;请选择测试语言&#45;&#45;</option>-->
+            <option value="java">Java</option>
+            <option value="js">JavaScript</option>
+        </select><br><br>
+        <button type="submit" class="submitbtn">提交</button>
+    </form>
+</div>
+<!-- Loading提示 DIV -->
+<div id="loadingTip" class="loading-tip">
+<!--    <img src="../Img/loading.gif" />-->
+    <img th:src="@{/image/loading.gif}" />
+</div>
+<!-- 遮罩层DIV -->
+<div id="overlay" class="overlay"></div>
+
+</body>
+<script>
+    var loadingTip=document.getElementById("loadingTip");
+    var overlay=document.getElementById("overlay");
+    var submitbtn=document.getElementsByClassName("submitbtn");;
+    function toggleFileInput() {
+        var isFile = document.getElementById("isFile").checked;
+        var fileInput = document.getElementById("FileForm");
+        var dataInput = document.getElementById("DataForm");
+
+        fileInput.classList.toggle("hidden", !isFile);
+        dataInput.classList.toggle("hidden", isFile);
+    }
+    for (var i=0;i<submitbtn.length;i++){
+        submitbtn[i].addEventListener("click",function (){
+            loadingTip.style.display="block";
+            overlay.style.display="block";
+        })
+    }
+
+</script>
+</html>
+

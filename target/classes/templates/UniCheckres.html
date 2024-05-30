@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>单个表达式检测结果</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            padding: 20px;
+            position: relative;
+            width: 1600px;
+            height: 900px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .result-table th,
+        .result-table td {
+            padding: 15px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .result-table th {
+            background-color: #f2f2f2;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .tooltip {
+            position: absolute;
+            background-color: #f2f2f2;
+            border: 2px solid #ccc;
+            padding: 10px;
+            z-index: 1;
+        }
+        /*隐藏的细节*/
+
+        .MyTr {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .detaildiv{
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            max-width: 800px;
+            text-align: center;
+            float: left;
+            position: absolute;
+            z-index: 1004;
+            top: 50%;
+            left: 50%;
+            margin-left: -300px;
+            margin-top: -200px;
+            display: none;
+        }
+
+        .detaildiv h1 {
+            margin-top: 0;
+        }
+
+        .detaildiv table {
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .detaildiv table th {
+            font-weight: bold;
+            padding: 8px;
+            background-color: #f2f2f2;
+        }
+
+        .detaildiv table td {
+            padding: 8px;
+        }
+    /*    */
+        .overlay {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            z-index: 1001;
+            display:none;
+            filter:alpha(opacity=60);
+            background-color: #777;
+            opacity: 0.5;
+            -moz-opacity: 0.5;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>检测结果 <div style="float: right"><button><a href="http://127.0.0.1:9090/">返回</a></button></div></h1>
+        <table id="Regex" class="result-table">
+            <tr>
+                <th>正则表达式：</th>
+                <th th:text="${bean.regex}"></th>
+                <th> </th>
+            </tr>
+            <tr>
+                <th>测试所用语言环境：</th>
+                <th th:text="${bean.testLanguage}"></th>
+                <th> </th>
+            </tr>
+            <tr>
+                <th>是否包含ReDOS漏洞</th>
+                <th th:text="${bean.reDoS}"></th>
+                <th> </th>
+            </tr>
+        </table>
+        <h2>可用攻击字符串:</h2>
+        <table id="results" class="result-table">
+            <tr>
+                <th>编号</th>
+                <th>是否攻击成功</th>
+                <th>可用的攻击字符串</th>
+                <th>详情</th>
+            </tr>
+            <tr class="MyTr" th:each="beanList,beanindex : ${bean.attackBeanList}" th:if="${beanList.isAttackSuccess()}">
+                <td th:text="${beanindex.count}"></td>
+                <td th:text="${beanList.isAttackSuccess()}"></td>
+                <td th:text="${beanList.attackStringFormat}"></td>
+                <td><button class="detailbtn">详情</button></td>
+            </tr>
+
+        </table>
+
+
+    </div>
+    <!-- 遮罩层DIV -->
+    <div id="overlay" class="overlay"></div>
+
+
+    <div th:each="beanList : ${bean.attackBeanList}" th:if="${beanList.isAttackSuccess()}" class="detaildiv">
+        <table>
+            <tr>
+                <th>属性</th>
+                <th>值</th>
+            </tr>
+            <tr>
+                <td>ID</td>
+                <td th:text="${bean.regexID}"></td>
+            </tr>
+            <tr>
+                <td>所测试的正则表达式</td>
+                <td th:text="${bean.regex}"></td>
+            </tr>
+            <tr>
+                <td>测试所使用的语言环境</td>
+                <td th:text="${bean.testLanguage}"></td>
+            </tr>
+            <tr>
+                <td>是否攻击成功</td>
+                <td th:text="${beanList.isAttackSuccess()}"></td>
+            </tr>
+            <tr>
+                <td>攻击可导致的耗时</td>
+                <td th:text="${beanList.attackTime}+'(ms)'"></td>
+            </tr>
+            <tr>
+                <td>漏洞位置</td>
+                <td th:text="${beanList.locateVulnerabilityRegex}"></td>
+            </tr>
+            <tr>
+                <td>可用的攻击字符串</td>
+                <td th:text="${beanList.attackStringFormat}"></td>
+            </tr>
+            <tr>
+                <td>漏洞具体模式</td>
+                <td th:text="${beanList.patternType}+'('+${beanList.vulnerabilityRegexSource}+')'"></td>
+            </tr>
+            <tr>
+                <td>时间复杂度级别</td>
+                <td th:text="${beanList.type}"></td>
+            </tr>
+        </table>
+        <div><button class="CloseDetail">关闭</button></div>
+    </div>
+
+    <script>
+        var mytr=document.getElementsByClassName("MyTr");
+        //
+        var overlay=document.getElementsByClassName("overlay");
+        var detaildiv=document.getElementsByClassName("detaildiv");
+        var detailbtn=document.getElementsByClassName("detailbtn");
+        var closedetail=document.getElementsByClassName("CloseDetail");
+        //
+        //
+        // console.log(detail);
+        for (var i=0;i<mytr.length;i++){
+            detailbtn[i].setAttribute("index",i);
+            detailbtn[i].addEventListener("click",function (event){
+                // alert(1111);
+                var row = event.target.parentNode;
+                var index=row.children[0].getAttribute("index");
+                detaildiv[index].style.display="block";
+                overlay[0].style.display="block";
+            })
+            closedetail[i].addEventListener("click",function (event){
+                var row = event.target.parentNode.parentNode;
+                row.style.display="none";
+                overlay[0].style.display="none";
+            })
+        }
+
+    </script>
+</body>
+</html>
